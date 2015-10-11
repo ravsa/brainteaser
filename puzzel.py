@@ -34,3 +34,20 @@ class myclass(hp):
     def handle_endtag(self, tag):
         if str(tag) == 'span':
             self.temp=0
+    def handle_data(self, data=None):
+        """handle data"""
+        if  self.puz_count ==  1 :
+            for i in (data.split('\n')):
+                if i.find('Hide') != -1:
+                    self.temp1=False
+                    break
+                elif self.temp1:
+                    self.answer+=i+'\n'
+        if  self.puz_count ==  2 :
+            self.puzzel+=data
+        if  self.puz_count ==  3 :
+            self.hint+=data
+        if  self.cat_count ==  0 :
+            self.category+=data
+        if  self.cat_count ==  2:
+            self.difficulty+=data

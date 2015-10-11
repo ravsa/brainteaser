@@ -58,3 +58,15 @@ class myclass(hp):
         self.hint=self.filter(self.hint)
         self.category=self.filter(self.category)
         self.difficulty=self.filter(self.difficulty)
+    def filter(self,string):
+        """filter undesired words and blacnk lines"""
+        x=string.split('\n')
+        pop=''
+        for i in x:
+            if i == '' or i == 'Hint' or i == 'Answer' or i == 'Hide' or i == '^M' or i == '\n':
+                x.remove(i) 
+            else:
+                pop+=i+'\n'            
+        pop.replace('Answer','')
+        pop.replace('Hint','')
+        return pop.replace('\r','')

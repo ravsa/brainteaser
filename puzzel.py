@@ -70,3 +70,6 @@ class myclass(hp):
         pop.replace('Answer','')
         pop.replace('Hint','')
         return pop.replace('\r','')
+if __name__ =="__main__":
+        my=myclass()
+        my.filt_call()

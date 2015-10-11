@@ -51,3 +51,10 @@ class myclass(hp):
             self.category+=data
         if  self.cat_count ==  2:
             self.difficulty+=data
+    def filt_call(self):
+        self.puzzle=self.filter(self.puzzel)
+        self.puzzle=self.filter(self.puzzel)
+        self.answer=self.filter(self.answer)
+        self.hint=self.filter(self.hint)
+        self.category=self.filter(self.category)
+        self.difficulty=self.filter(self.difficulty)

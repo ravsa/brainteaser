@@ -27,12 +27,14 @@ class view():
         self.main_hbox.pack_start(self.vbox_two,False)
         self.vbox_two.set_size_request(self.wid_two,gtk.gdk.screen_height()-100)
         self.vbox_one.set_size_request(self.wid_one,gtk.gdk.screen_height()-100)
-        self.main_hbox.pack_start(self.vbox_three,True)
+        self.main_hbox.pack_start(self.vbox_three,False)
         self.sidebar()
         self.details()
+        
         self.question()
         self.main_window.show_all()
         self.update()
+        self.view2.hide()
         self.vbox_one.hide()
         gtk.main()
     def sidebar(self):
@@ -142,16 +144,34 @@ class view():
         gobject.timeout_add(1,action,self)
     def question(self):
         self.view1=gtk.ScrolledWindow()
+        self.view2=gtk.ScrolledWindow()
         self.view=gtk.TextView()
+        self.text=gtk.TextView()
         self.buffer=self.view.get_buffer()
         file=open('puzzel.py','r')
         self.buffer.set_text(file.read())
+        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height())
         self.view1.add(self.view)
+        self.view2.add(self.text)
         self.vbox_three.pack_start(self.view1,True)
-        self.view1.set_border_width(2)
-        self.view2=gtk.ScrolledWindow()
-        self.view2.set_border_width(2)
+        self.view1.set_border_width(4)
+        self.view2.set_border_width(4)
         self.vbox_three.pack_start(self.view2,False)
+    def ans(self,etc):
+        self.view2.show()
+        self.text_buffer=self.text.get_buffer()
+        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        self.view2.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        fi=open('view.py','r')
+        self.text_buffer.set_text(fi.read())
+    def hint_field(self,etc):
+        self.view2.show()
+        self.text_buffer=self.text.get_buffer()
+        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        self.view2.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        fi=open('view.py','r')
+        self.text_buffer.set_text(fi.read())
+
     def details(self):
         self.det_hori=gtk.HBox()
         self.det_hori.set_size_request(200,33)
@@ -169,6 +189,7 @@ class view():
         self.cat_hori.pack_start(self.cat_but,True)
         self.ans_hori=gtk.HBox()
         self.ans_but=gtk.Button('Answer')
+        self.ans_but.connect('clicked',self.ans)
         self.ans_but.modify_bg(gtk.STATE_NORMAL,self.ans_but.get_colormap().alloc_color('light gray'))
         self.ans_but.set_size_request(200,33)
         self.ans_hori.pack_start(self.ans_but,True)
@@ -184,6 +205,7 @@ class view():
         self.same_hori.pack_start(self.same_but,True)
         self.hint_hori=gtk.HBox()
         self.hint_but=gtk.Button('Hint')
+        self.hint_but.connect('clicked',self.hint_field)
         self.hint_but.modify_bg(gtk.STATE_NORMAL,self.hint_but.get_colormap().alloc_color('black'))
         self.hint_but.set_size_request(200,33)
         self.hint_hori.pack_start(self.hint_but,True)
@@ -202,7 +224,6 @@ class view():
         """Update difficulty color label"""
         if hint == '':
             self.hint_hori.hide()
-
         if difficulty<0.90:
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('green'))
         elif difficulty<1.70:

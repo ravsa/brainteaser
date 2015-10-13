@@ -2,7 +2,9 @@ import pygtk
 import gobject
 
 import gtk
-category='logic'
+category='logic-grideaw'
+hint='d'
+difficulty=1.4
 class view():
 
     """"""
@@ -30,6 +32,7 @@ class view():
         self.details()
         self.question()
         self.main_window.show_all()
+        self.update()
         self.vbox_one.hide()
         gtk.main()
     def sidebar(self):
@@ -39,16 +42,15 @@ class view():
         self.vbox_one.pack_start(self.language,False)
         self.logic=gtk.Button('Logic')
         self.logic.set_size_request(200,33)
-        self.logic.modify_bg(gtk.STATE_NORMAL,self.logic.get_colormap().alloc_color('dark gray'))
+        self.logic.modify_bg(gtk.STATE_NORMAL,self.logic.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.logic,False)
         self.logic_grid=gtk.Button('Logic-grid')
         self.logic_grid.set_size_request(200,33)
-        self.logic.modify_bg(gtk.STATE_NORMAL,self.logic.get_colormap().alloc_color('dark gray'))
         self.logic_grid.modify_bg(gtk.STATE_NORMAL,self.logic_grid.get_colormap().alloc_color('black'))
         self.vbox_one.pack_start(self.logic_grid,False)
         self.math=gtk.Button('Math')
         self.math.set_size_request(200,33)
-        self.math.modify_bg(gtk.STATE_NORMAL,self.math.get_colormap().alloc_color('dark gray'))
+        self.math.modify_bg(gtk.STATE_NORMAL,self.math.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.math,False)
         self.situation=gtk.Button('Situation')
         self.situation.set_size_request(200,33)
@@ -57,14 +59,14 @@ class view():
         self.rebus=gtk.Button('Rebus')
         self.rebus.set_size_request(200,33)
         self.vbox_one.pack_start(self.rebus,False)
-        self.rebus.modify_bg(gtk.STATE_NORMAL,self.rebus.get_colormap().alloc_color('dark gray'))
+        self.rebus.modify_bg(gtk.STATE_NORMAL,self.rebus.get_colormap().alloc_color('light gray'))
         self.riddle=gtk.Button('Riddle')
         self.riddle.set_size_request(200,33)
         self.vbox_one.pack_start(self.riddle,False)
         self.riddle.modify_bg(gtk.STATE_NORMAL,self.riddle.get_colormap().alloc_color('black'))
         self.trick=gtk.Button('Trick')
         self.trick.set_size_request(200,33)
-        self.trick.modify_bg(gtk.STATE_NORMAL,self.trick.get_colormap().alloc_color('dark gray'))
+        self.trick.modify_bg(gtk.STATE_NORMAL,self.trick.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.trick,False)
         self.probability=gtk.Button('Probability')
         self.probability.set_size_request(200,33)
@@ -72,7 +74,7 @@ class view():
         self.vbox_one.pack_start(self.probability,False)
         self.trivia=gtk.Button('Trivia')
         self.trivia.set_size_request(200,33)
-        self.trivia.modify_bg(gtk.STATE_NORMAL,self.trivia.get_colormap().alloc_color('dark gray'))
+        self.trivia.modify_bg(gtk.STATE_NORMAL,self.trivia.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.trivia,False)
         self.series=gtk.Button('Series')
         self.series.set_size_request(200,33)
@@ -80,7 +82,7 @@ class view():
         self.vbox_one.pack_start(self.series,False)
         self.mystery=gtk.Button('Mystery')
         self.mystery.set_size_request(200,33)
-        self.mystery.modify_bg(gtk.STATE_NORMAL,self.mystery.get_colormap().alloc_color('dark gray'))
+        self.mystery.modify_bg(gtk.STATE_NORMAL,self.mystery.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.mystery,False)
         self.letter_equation=gtk.Button('Letter-equation')
         self.letter_equation.set_size_request(200,33)
@@ -88,7 +90,7 @@ class view():
         self.vbox_one.pack_start(self.letter_equation,False)
         self.crypto=gtk.Button('Cryptography')
         self.crypto.set_size_request(200,33)
-        self.crypto.modify_bg(gtk.STATE_NORMAL,self.crypto.get_colormap().alloc_color('dark gray'))
+        self.crypto.modify_bg(gtk.STATE_NORMAL,self.crypto.get_colormap().alloc_color('light gray'))
         self.vbox_one.pack_start(self.crypto,False)
         self.science=gtk.Button('Science')
         self.science.set_size_request(200,33)
@@ -96,14 +98,14 @@ class view():
         self.vbox_one.pack_start(self.science,False)
         self.back=gtk.Button('BACK')
         self.back.set_size_request(200,33)
-        self.back.modify_bg(gtk.STATE_NORMAL,self.back.get_colormap().alloc_color('dark red'))
+        self.back.modify_bg(gtk.STATE_NORMAL,self.back.get_colormap().alloc_color('red'))
         self.vbox_one.pack_start(self.back,False)
     def motion(self,argv):
         """TODO: Docstring for motion.
         :returns: TODO
 
         """
-                                  
+        self.update()                          
         def action(self):
             """TODO: Docstring for action.
             :returns: TODO
@@ -120,6 +122,21 @@ class view():
                     self.wid_one+=5
                     self.vbox_one.set_size_request(self.wid_one,gtk.gdk.screen_height()-100)
                     if self.wid_one>=200:
+                        self.side=False
+                        return False
+                return True
+            else:
+                if self.wid_two<=2:
+                    self.wid_one-=5
+                self.vbox_one.set_size_request(self.wid_one,gtk.gdk.screen_height()-100)
+                if self.wid_one<=0:
+                    self.vbox_one.hide()
+                    self.vbox_two.show()
+                if self.wid_one<=2:
+                    self.wid_two+=5
+                    self.vbox_two.set_size_request(self.wid_two,gtk.gdk.screen_height()-100)
+                    if self.wid_two>=200:
+                        self.side=True
                         return False
                 return True
         gobject.timeout_add(1,action,self)
@@ -136,13 +153,63 @@ class view():
         self.view2.set_border_width(2)
         self.vbox_three.pack_start(self.view2,False)
     def details(self):
+        self.det_hori=gtk.HBox()
+        self.det_hori.set_size_request(200,33)
+        self.cat_lab=gtk.Label(category.upper())
+        self.cat_lab.modify_fg(gtk.STATE_NORMAL,self.cat_lab.get_colormap().alloc_color('dark blue'))
+        self.diff_lab=gtk.Label('{  '+str(difficulty)+'  }')
+        self.det_hori.pack_start(self.cat_lab,False,False,15)
+        self.det_hori.pack_start(self.diff_lab,False,True,0)
         self.cat_hori=gtk.HBox()
-        self.cat_lab=gtk.Button('Category')
-        self.cat_lab.connect('clicked',self.motion)
-        self.cat_lab.set_size_request(200,33)
-        self.cat_hori.pack_start(self.cat_lab,True)
+        self.cat_but=gtk.Button('Category')
+        self.cat_but.connect('clicked',self.motion)
+        self.back.connect('clicked',self.motion)
+        self.cat_but.modify_bg(gtk.STATE_NORMAL,self.cat_but.get_colormap().alloc_color('light gray'))
+        self.cat_but.set_size_request(200,33)
+        self.cat_hori.pack_start(self.cat_but,True)
+        self.ans_hori=gtk.HBox()
+        self.ans_but=gtk.Button('Answer')
+        self.ans_but.modify_bg(gtk.STATE_NORMAL,self.ans_but.get_colormap().alloc_color('light gray'))
+        self.ans_but.set_size_request(200,33)
+        self.ans_hori.pack_start(self.ans_but,True)
+        self.rand_hori=gtk.HBox()
+        self.rand_but=gtk.Button('Next Random')
+        self.rand_but.modify_bg(gtk.STATE_NORMAL,self.rand_but.get_colormap().alloc_color('dark gray'))
+        self.rand_but.set_size_request(200,33)
+        self.rand_hori.pack_start(self.rand_but,True)
+        self.same_hori=gtk.HBox()
+        self.same_but=gtk.Button('Next Same')
+        self.same_but.modify_bg(gtk.STATE_NORMAL,self.same_but.get_colormap().alloc_color('dark gray'))
+        self.same_but.set_size_request(200,33)
+        self.same_hori.pack_start(self.same_but,True)
+        self.hint_hori=gtk.HBox()
+        self.hint_but=gtk.Button('Hint')
+        self.hint_but.modify_bg(gtk.STATE_NORMAL,self.hint_but.get_colormap().alloc_color('black'))
+        self.hint_but.set_size_request(200,33)
+        self.hint_hori.pack_start(self.hint_but,True)
+        self.vbox_two.pack_start(self.det_hori,False)
         self.vbox_two.pack_start(self.cat_hori,False)
+        self.vbox_two.pack_start(self.hint_hori,False)
+        self.vbox_two.pack_start(self.ans_hori,False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(self.rand_hori,False)
+        self.vbox_two.pack_start(self.same_hori,False)
+    def update(self):
+        """Update difficulty color label"""
+        if hint == '':
+            self.hint_hori.hide()
+
+        if difficulty<0.90:
+            self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('green'))
+        elif difficulty<1.70:
+            self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('orange'))
+        else:
+            self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('red'))
+            
 
 
-
-iiy=view()
+iiy=view() 

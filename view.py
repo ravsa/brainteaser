@@ -1,18 +1,33 @@
 import gobject
+import pango
 import gtk
+from data import data
 from puzzle import myclass as pz
-pop=pz()
-file=open('test.html','r')
-pop.feed(file.read())
-category=pop.category
-difficulty=pop.difficulty.replace('\n','')
-difficulty=difficulty.replace('(','')
-difficulty=float(difficulty.replace(')',''))
-puzzle=pop.puzzle.replace('Answer','')
-puzzle=puzzle.replace('\n\n\n','') 
-puzzle=puzzle.replace('\r','')
-answer=pop.answer
-hint=pop.hint
+category,difficulty,puzzle,answer,hint='','','','','',
+def load():
+    global category,difficulty,puzzle,answer,hint
+    pop=pz()
+    file=open('teaser','r')
+    pop.feed(file.read())
+    category=pop.category
+    category=category.replace('\n','').upper()
+    difficulty=pop.difficulty.replace('\n','')
+    difficulty=difficulty.replace('(','')
+    difficulty=float(difficulty.replace(')',''))
+    puzzle=pop.puzzle.replace('\n\n\n','') 
+    puzzle=puzzle.replace('\r','')
+    puzzle=puzzle.replace('Hint','')
+    puzzle=puzzle.replace('Answer','')+'\n'
+    answer=pop.answer
+    answer=answer.replace('\n\n\n','\n') 
+    answer=answer.replace('\n\n','\n') 
+    answer=answer.replace('\r','') 
+    answer='[Answer:]\n\n'+answer+'\n\n'
+    hint=pop.hint
+    hint=hint.replace('\n\n\n','') 
+    hint=hint.replace('Hide','')
+    hint=hint.replace('Show Hint','')
+    hint=hint.replace('Answer','')
 class view():
     def __init__(self):
         """TODO: to be defined1. """
@@ -21,6 +36,7 @@ class view():
         self.main_window.set_default_size(gtk.gdk.screen_width()-100,gtk.gdk.screen_height()-100)
         self.main_hbox=gtk.HBox()
         self.side=True
+        self.default_add='http://braingle.com/brainteasers/'
 #Three vertical boxes
         self.vbox_one=gtk.VBox()
         self.vbox_two=gtk.VBox()
@@ -41,8 +57,13 @@ class view():
         self.main_window.show_all()
         self.update()
         self.view2.hide()
+        self.action()
         self.vbox_one.hide()
         gtk.main()
+    def opn(self,etc,url):
+        dt=data()
+        dt.set_data(url)
+        print dt.local# status of success/fail
     def sidebar(self):
         self.language=gtk.Button('Language')
         self.language.set_size_request(200,33)
@@ -148,42 +169,59 @@ class view():
                         return False
                 return True
         gobject.timeout_add(1,action,self)
+    def spinning(self):
+        self.spin_cont=gtk.VBox()
+        self.spin_cont.set_size_request(100,100)
+        self.spin=gtk.Spinner()
+        self.spin.set_size_request(50,50)
+        self.spin_cont.pack_start(self.spin,True,False,0)
+        self.view1.add(self.spin_cont)
+        self.spin.start()
     def question(self):
+
+        
         self.view1=gtk.ScrolledWindow()
         self.view2=gtk.ScrolledWindow()
         self.text_view1=gtk.TextView()
+        self.text_view1.modify_font(pango.FontDescription('monospace regular 13'))
+        self.text_view1.set_wrap_mode(True)
+        self.text_view1.set_editable(False)
+
         self.text_view1.set_left_margin(20)
         self.text_view2=gtk.TextView()
+        self.text_view2.modify_font(pango.FontDescription('monospace regular 13'))
+        self.text_view2.set_editable(False)
+        self.text_view2.set_wrap_mode(True)
         self.text_view2.set_left_margin(20)
         self.text_buffer1=self.text_view1.get_buffer()
         self.text_buffer1.set_text(puzzle)
-        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height())
-        self.view1.add(self.text_view1)
+        self.view1.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height())
         self.view2.add(self.text_view2)
         self.vbox_three.pack_start(self.view1,True)
         self.view1.set_border_width(4)
         self.view2.set_border_width(4)
         self.vbox_three.pack_start(self.view2,False)
     def ans(self,etc):
-        self.view2.show()
+        if answer!='':
+            self.view2.show()
         self.text_buffer2=self.text_view2.get_buffer()
-        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
-        self.view2.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        self.view1.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height()/2)
+        self.view2.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height()/2)
         self.text_buffer2.set_text(answer)
     def hint_field(self,etc):
         self.view2.show()
         self.text_buffer2=self.text_view2.get_buffer()
-        self.view1.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
-        self.view2.set_size_request(gtk.gdk.screen_width()-200,gtk.gdk.screen_height()/2)
+        self.view1.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height()/2)
+        self.view2.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height()/2)
         self.text_buffer2.set_text(hint)
 
     def details(self):
         self.det_hori=gtk.HBox()
         self.det_hori.set_size_request(200,33)
-        self.cat_lab=gtk.Label(category.replace('\n','').upper())
+        self.cat_lab=gtk.Label(category)
         self.cat_lab.modify_fg(gtk.STATE_NORMAL,self.cat_lab.get_colormap().alloc_color('dark blue'))
         self.diff_lab=gtk.Label('{  '+str(difficulty)+'  }')
-        self.det_hori.pack_start(self.cat_lab,False,False,15)
+        self.det_hori.pack_start(self.cat_lab,False,False,13)
         self.det_hori.pack_start(self.diff_lab,False,True,0)
         self.cat_hori=gtk.HBox()
         self.cat_but=gtk.Button('Category')
@@ -227,7 +265,9 @@ class view():
         self.vbox_two.pack_start(self.same_hori,False)
     def update(self):
         """Update difficulty color label"""
+        global hint
         if hint == '':
+            hint='[Hint]:\n\n:'+hint
             self.hint_hori.hide()
         if difficulty<0.90:
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('green'))
@@ -235,6 +275,11 @@ class view():
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('orange'))
         else:
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('red'))
+    def action(self):
+        if self.rand_but.connect('clicked',self.opn,self.default_add+'/teaser.php?rand=1'):
+            print "fine"
+        else:
+            print "not Fine"
             
 if __name__=='__main__':
     x=view()

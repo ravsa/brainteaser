@@ -1,6 +1,7 @@
 import gobject
 import pango
 import gtk
+import thread
 from data import data
 from puzzle import myclass as pz
 category,difficulty,puzzle,answer,hint='','','','','',
@@ -41,6 +42,18 @@ class view():
         self.vbox_one=gtk.VBox()
         self.vbox_two=gtk.VBox()
         self.vbox_three=gtk.VBox()
+#scroll window
+        self.view1=gtk.ScrolledWindow()
+        self.view2=gtk.ScrolledWindow()
+        self.view1.set_border_width(4)
+        self.view2.set_border_width(4)
+#spinner
+        self.spin_cont=gtk.VBox()
+        self.spin_cont.set_size_request(100,100)
+        self.spin=gtk.Spinner()
+        self.spin.set_size_request(50,50)
+        self.spin_cont.pack_start(self.spin,True,False,0)
+        self.view1.add(self.spin_cont)
 #pack three boxes in window into main Horizontal box
         self.wid_one=0
         self.wid_two=200
@@ -59,11 +72,19 @@ class view():
         self.view2.hide()
         self.action()
         self.vbox_one.hide()
+        self.spin_cont.hide()
         gtk.main()
     def opn(self,etc,url):
         dt=data()
-        dt.set_data(url)
-        print dt.local# status of success/fail
+        thread.start_new_thread(dt.get_data,(url,))
+        thread.start_new_thread(self.spinning,('',))
+        def spin_stop(self):
+            if dt.local!=0:
+                self.spin.stop()
+                #self.spin_cont.hide()
+                return False
+            return True
+        gobject.timeout_add(1,spin_stop,self)
     def sidebar(self):
         self.language=gtk.Button('Language')
         self.language.set_size_request(200,33)
@@ -169,24 +190,16 @@ class view():
                         return False
                 return True
         gobject.timeout_add(1,action,self)
-    def spinning(self):
-        self.spin_cont=gtk.VBox()
-        self.spin_cont.set_size_request(100,100)
-        self.spin=gtk.Spinner()
-        self.spin.set_size_request(50,50)
-        self.spin_cont.pack_start(self.spin,True,False,0)
-        self.view1.add(self.spin_cont)
+    def spinning(self,etc):
+        self.spin_cont.show()
         self.spin.start()
     def question(self):
 
         
-        self.view1=gtk.ScrolledWindow()
-        self.view2=gtk.ScrolledWindow()
         self.text_view1=gtk.TextView()
         self.text_view1.modify_font(pango.FontDescription('monospace regular 13'))
         self.text_view1.set_wrap_mode(True)
         self.text_view1.set_editable(False)
-
         self.text_view1.set_left_margin(20)
         self.text_view2=gtk.TextView()
         self.text_view2.modify_font(pango.FontDescription('monospace regular 13'))
@@ -198,8 +211,6 @@ class view():
         self.view1.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height())
         self.view2.add(self.text_view2)
         self.vbox_three.pack_start(self.view1,True)
-        self.view1.set_border_width(4)
-        self.view2.set_border_width(4)
         self.vbox_three.pack_start(self.view2,False)
     def ans(self,etc):
         if answer!='':

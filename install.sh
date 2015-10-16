@@ -4,7 +4,7 @@ mkdir /tmp/.brainteaser
 cp -arvf * /tmp/.brainteaser
 cp -arvf /tmp/.brainteaser/ ~/
 chmod 755 ~/.brainteaser/main.py
-echo "PATH=$PATH:~/.brainteaser/" >>~/.bashrc
+echo "PATH=\$PATH:~/.brainteaser/" >>~/.bashrc
 echo "alias braint='python ~/.brainteaser/main.py'">> ~/.bashrc
 rm -rvf /tmp/.brainteaser
 echo ""

@@ -1,5 +1,6 @@
 from HTMLParser import HTMLParser as hp
 
+
 class myclass(hp):
     def __init__(self):
         """constructer"""

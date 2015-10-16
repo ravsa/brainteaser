@@ -1,4 +1,5 @@
 #!/bin/bash
+sudo apt-get install python-gtk2
 mkdir /tmp/.brainteaser
 cp -arvf * /tmp/.brainteaser
 cp -arvf /tmp/.brainteaser/ ~/

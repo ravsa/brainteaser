@@ -1,6 +1,6 @@
 import urllib
-import Queue
 import subprocess as sp
+import Queue
 
 home_dir=(sp.Popen('echo ~',shell=True,stdout=sp.PIPE).communicate()[0])[:-1]
 class data():

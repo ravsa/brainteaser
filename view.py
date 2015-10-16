@@ -1,16 +1,23 @@
 import gobject
+import warnings
+import Queue 
 import pango
 import gtk
-import thread
+import threading
 from data import data
 from puzzle import myclass as pz
-category,difficulty,puzzle,answer,hint='','','','','',
+category, difficulty, puzzle, answer, hint = '', '', '', '', '',
+
+gobject.threads_init()
+
 def load():
-    global category,difficulty,puzzle,answer,hint
+    global category, difficulty,puzzle,answer,hint
     pop=pz()
     file=open('teaser','r')
     pop.feed(file.read())
     category=pop.category
+    category=category.replace(' ','')
+    category=category.replace('\r','')
     category=category.replace('\n','').upper()
     difficulty=pop.difficulty.replace('\n','')
     difficulty=difficulty.replace('(','')
@@ -29,9 +36,10 @@ def load():
     hint=hint.replace('Hide','')
     hint=hint.replace('Show Hint','')
     hint=hint.replace('Answer','')
-class view():
+class view(threading.Thread):
     def __init__(self):
         """TODO: to be defined1. """
+        warnings.filterwarnings('ignore')
         self.main_window=gtk.Window()
         self.main_window.connect('destroy',lambda x:gtk.main_quit())
         self.main_window.set_default_size(gtk.gdk.screen_width()-100,gtk.gdk.screen_height()-100)
@@ -47,13 +55,11 @@ class view():
         self.view2=gtk.ScrolledWindow()
         self.view1.set_border_width(4)
         self.view2.set_border_width(4)
-#spinner
-        self.spin_cont=gtk.VBox()
-        self.spin_cont.set_size_request(100,100)
-        self.spin=gtk.Spinner()
-        self.spin.set_size_request(50,50)
-        self.spin_cont.pack_start(self.spin,True,False,0)
-        self.view1.add(self.spin_cont)
+#loader
+        self.loader_cont=gtk.VBox()
+        self.loader=gtk.Label()
+        self.loader.set_markup('<span color="green" size="16000">Loading....</span>')
+        self.loader_cont.pack_start(self.loader,True)
 #pack three boxes in window into main Horizontal box
         self.wid_one=0
         self.wid_two=200
@@ -64,27 +70,50 @@ class view():
         self.vbox_one.set_size_request(self.wid_one,gtk.gdk.screen_height()-100)
         self.main_hbox.pack_start(self.vbox_three,False)
         self.sidebar()
+        load()
         self.details()
-        
         self.question()
         self.main_window.show_all()
         self.update()
         self.view2.hide()
         self.action()
+        self.loader_cont.hide()
         self.vbox_one.hide()
-        self.spin_cont.hide()
         gtk.main()
+    def refresh(self):
+        self.cat_lab.set_text(category)
+        self.diff_lab.set_text('{  '+str(difficulty)+'  }')
+        self.text_buffer1.set_text(puzzle)
+        self.update()
     def opn(self,etc,url):
+        queue=Queue.Queue()
+        self.loader_cont.show()
         dt=data()
-        thread.start_new_thread(dt.get_data,(url,))
-        thread.start_new_thread(self.spinning,('',))
-        def spin_stop(self):
-            if dt.local!=0:
-                self.spin.stop()
-                #self.spin_cont.hide()
+        data_thread=threading.Thread(target=dt.get_data,args=(url,queue))
+        data_thread.start()
+        def idont(self):
+            xor=queue.get()
+            if xor == 1 or xor == 2:
+                store=xor
+            else:
+                store=0
+            if store == 2:
+                self.loader_cont.hide()
+                self.temp_cont=gtk.HBox()
+                self.temp_lab=gtk.Label()
+                self.temp_lab.set_markup('<span size="20000" color="red">ERROR: Connection failed</span>')
+                self.temp_cont.pack_start(self.temp_lab,True)
+                self.view1.add(self.temp_cont)
+                self.view1.show_all()
+                return False
+            if store == 1:
+                load()
+                self.vbox_two.show_all()
+                self.refresh()
+                self.loader_cont.hide()
                 return False
             return True
-        gobject.timeout_add(1,spin_stop,self)
+        gobject.timeout_add(1,idont,self)
     def sidebar(self):
         self.language=gtk.Button('Language')
         self.language.set_size_request(200,33)
@@ -190,12 +219,7 @@ class view():
                         return False
                 return True
         gobject.timeout_add(1,action,self)
-    def spinning(self,etc):
-        self.spin_cont.show()
-        self.spin.start()
     def question(self):
-
-        
         self.text_view1=gtk.TextView()
         self.text_view1.modify_font(pango.FontDescription('monospace regular 13'))
         self.text_view1.set_wrap_mode(True)
@@ -209,6 +233,7 @@ class view():
         self.text_buffer1=self.text_view1.get_buffer()
         self.text_buffer1.set_text(puzzle)
         self.view1.set_size_request(gtk.gdk.screen_width()-210,gtk.gdk.screen_height())
+        self.view1.add(self.text_view1)
         self.view2.add(self.text_view2)
         self.vbox_three.pack_start(self.view1,True)
         self.vbox_three.pack_start(self.view2,False)
@@ -231,7 +256,7 @@ class view():
         self.det_hori.set_size_request(200,33)
         self.cat_lab=gtk.Label(category)
         self.cat_lab.modify_fg(gtk.STATE_NORMAL,self.cat_lab.get_colormap().alloc_color('dark blue'))
-        self.diff_lab=gtk.Label('{  '+str(difficulty)+'  }')
+        self.diff_lab=gtk.Label('{ '+str(difficulty)+' }')
         self.det_hori.pack_start(self.cat_lab,False,False,13)
         self.det_hori.pack_start(self.diff_lab,False,True,0)
         self.cat_hori=gtk.HBox()
@@ -248,12 +273,12 @@ class view():
         self.ans_but.set_size_request(200,33)
         self.ans_hori.pack_start(self.ans_but,True)
         self.rand_hori=gtk.HBox()
-        self.rand_but=gtk.Button('Next Random')
+        self.rand_but=gtk.Button('Next (Random)')
         self.rand_but.modify_bg(gtk.STATE_NORMAL,self.rand_but.get_colormap().alloc_color('dark gray'))
         self.rand_but.set_size_request(200,33)
         self.rand_hori.pack_start(self.rand_but,True)
         self.same_hori=gtk.HBox()
-        self.same_but=gtk.Button('Next Same')
+        self.same_but=gtk.Button('Next (Same)')
         self.same_but.modify_bg(gtk.STATE_NORMAL,self.same_but.get_colormap().alloc_color('dark gray'))
         self.same_but.set_size_request(200,33)
         self.same_hori.pack_start(self.same_but,True)
@@ -274,6 +299,12 @@ class view():
         self.vbox_two.pack_start(gtk.HSeparator(),False)
         self.vbox_two.pack_start(self.rand_hori,False)
         self.vbox_two.pack_start(self.same_hori,False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(gtk.HSeparator(),False)
+        self.vbox_two.pack_start(self.loader_cont,False)       
     def update(self):
         """Update difficulty color label"""
         global hint
@@ -286,11 +317,27 @@ class view():
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('orange'))
         else:
             self.diff_lab.modify_fg(gtk.STATE_NORMAL,self.diff_lab.get_colormap().alloc_color('red'))
+    def next_same(self,etc):
+        store={'LOGIC':'Logic','LOGIC-GRID':'Logic-Grid','CRYPTOGRAPHY':'Cryptography','SCIENCE':'Science','LETTER-EQUATION':'Letter-Equations','RIDDLE':'Riddle','TRICK':'Trick','RIBUS':'Ribus','LANGUAGE':'Language','MYSTERY':'Mystery','SITUATION':'Situation','TRIVIA':'Trivia','PROBABILITY':'Probability','SERIES':'Series','MATH':'Math'}
+        self.same_but.connect('clicked',self.opn,self.default_add+'/teaser.php?similar='+store[category])
     def action(self):
-        if self.rand_but.connect('clicked',self.opn,self.default_add+'/teaser.php?rand=1'):
-            print "fine"
-        else:
-            print "not Fine"
+        self.rand_but.connect('clicked',self.opn,self.default_add+'/teaser.php?rand=1')
+        self.same_but.connect('clicked',self.next_same)
+        self.crypto.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Cryptography')
+        self.science.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Science')
+        self.logic.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Logic')
+        self.letter_equation.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Letter-Equations')
+        self.rebus.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Rebus')
+        self.riddle.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Riddle')
+        self.trick.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Trick')
+        self.language.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Language')
+        self.logic_grid.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Logic-Grid')
+        self.math.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Math')
+        self.mystery.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Mystery')
+        self.situation.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Situation')
+        self.trivia.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Trivia')
+        self.probability.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Probability')
+        self.series.connect('clicked',self.opn,self.default_add+'/teaser.php?similar=Series')
             
 if __name__=='__main__':
     x=view()

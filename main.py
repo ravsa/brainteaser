@@ -10,7 +10,6 @@ category, difficulty, puzzle, answer, hint = '', '', '', '', '',
 
 gobject.threads_init()
 
-
 def load():
     global category, difficulty, puzzle, answer, hint
     pop = pz()

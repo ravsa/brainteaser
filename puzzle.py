@@ -51,25 +51,6 @@ class myclass(hp):
             self.category+=data
         if  self.cat_count ==  2:
             self.difficulty+=data
-    def filt_call(self):
-        self.puzzle=self.filter(self.puzzle)
-        self.puzzle=self.filter(self.puzzle)
-        self.answer=self.filter(self.answer)
-        self.hint=self.filter(self.hint)
-        self.category=self.filter(self.category)
-        self.difficulty=self.filter(self.difficulty)
-    def filter(self,string):
-        """filter undesired words and blacnk lines"""
-        x=string.split('\n')
-        pop=''
-        for i in x:
-            if i == '' or i == 'Hint' or i == 'Answer' or i == 'Hide' or i == '^M' or i == '\n':
-                x.remove(i) 
-            else:
-                pop+=i+'\n'            
-        pop.replace('Answer','')
-        pop.replace('Hint','')
-        return pop.replace('\r','')
 if __name__ =="__main__":
         my=myclass()
         file=open('test.html','r')

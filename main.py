@@ -8,17 +8,19 @@ import threading
 from data import data
 from puzzle import myclass as pz
 category, difficulty, puzzle, answer, hint = '', '', '', '', '',
-home_dir=(sp.Popen('echo ~',shell=True,stdout=sp.PIPE).communicate()[0])[:-1]
+home_dir = (sp.Popen('echo ~', shell=True,
+                     stdout=sp.PIPE).communicate()[0])[:-1]
 gobject.threads_init()
+
 
 def load():
     global category, difficulty, puzzle, answer, hint
     pop = pz()
-    file = open(home_dir+'/.brainteaser/teaser', 'r')
+    file = open(home_dir + '/.brainteaser/teaser', 'r')
     content = file.read()
     if len(content.split('\n')) < 250:
         file.close()
-        file = open(home_dir+'/.brainteaser/test.html', 'r')
+        file = open(home_dir + '/.brainteaser/test.html', 'r')
         content = file.read()
     pop.feed(content)
     category = pop.category
